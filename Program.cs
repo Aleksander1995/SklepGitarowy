@@ -1,9 +1,7 @@
-﻿// Aleksander Czajkowski – Sklep gitarowy
-// Aplikacja konsolowa .NET 8 z bazą danych (ocena 4,5)
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace SklepGitarowy
 {
@@ -35,17 +33,33 @@ namespace SklepGitarowy
                     case "2":
                         store.DisplayProducts();
                         Console.Write("Podaj ID produktu: ");
-                        int id = int.Parse(Console.ReadLine());
+                        if (!int.TryParse(Console.ReadLine(), out int id))
+                        {
+                            Console.WriteLine("Nieprawidłowe ID.");
+                            break;
+                        }
                         Console.Write("Podaj ilość: ");
-                        int qty = int.Parse(Console.ReadLine());
+                        if (!int.TryParse(Console.ReadLine(), out int qty))
+                        {
+                            Console.WriteLine("Nieprawidłowa ilość.");
+                            break;
+                        }
                         store.AddToCart(id, qty, cart);
                         break;
                     case "3":
                         cart.DisplayCart();
                         Console.Write("Podaj ID produktu do usunięcia: ");
-                        int removeId = int.Parse(Console.ReadLine());
+                        if (!int.TryParse(Console.ReadLine(), out int removeId))
+                        {
+                            Console.WriteLine("Nieprawidłowe ID.");
+                            break;
+                        }
                         Console.Write("Podaj ilość do usunięcia: ");
-                        int removeQty = int.Parse(Console.ReadLine());
+                        if (!int.TryParse(Console.ReadLine(), out int removeQty))
+                        {
+                            Console.WriteLine("Nieprawidłowa ilość.");
+                            break;
+                        }
                         cart.RemoveItem(removeId, removeQty);
                         break;
                     case "4":
@@ -64,12 +78,32 @@ namespace SklepGitarowy
         }
     }
 
-    class Product
+    public class Order
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public DateTime Date { get; set; } = DateTime.Now;
+        public decimal TotalAmount { get; set; }
+        public List<OrderItem> Items { get; set; } = new();
+    }
+
+    public class OrderItem
+    {
+        public int Id { get; set; }
+        public string ProductName { get; set; } = string.Empty;
+        public int Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
+        public int OrderId { get; set; }
+        public Order? Order { get; set; }
+    }
+
+    public class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public int Quantity { get; set; }
+
+        public Product() {}
 
         public Product(int id, string name, decimal price, int quantity)
         {
@@ -122,7 +156,7 @@ namespace SklepGitarowy
             }
         }
 
-       public void DisplayCart()
+        public void DisplayCart()
         {
             Console.WriteLine("\n=== Zawartość koszyka ===");
             if (!items.Any())
@@ -138,7 +172,6 @@ namespace SklepGitarowy
             Console.WriteLine($"\nŁącznie: {GetTotalPrice():C}");
         }
 
-
         public decimal GetTotalPrice()
         {
             return items.Sum(i => i.Product.Price * i.Quantity);
@@ -150,32 +183,20 @@ namespace SklepGitarowy
 
     class Store
     {
-        private List<Product> products;
-
-        public Store()
-        {
-            products = new List<Product>
-            {
-                new Product(1, "Gitara akustyczna Yamaha", 999.99m, 5),
-                new Product(2, "Gitara elektryczna Ibanez", 1499.99m, 3),
-                new Product(3, "Wzmacniacz Fender", 799.99m, 4),
-                new Product(4, "Struny D'Addario", 39.99m, 10),
-                new Product(5, "Pasek gitarowy Ernie Ball", 59.99m, 7)
-            };
-        }
+        private readonly StoreDbContext _context = new StoreDbContext();
 
         public void DisplayProducts()
         {
             Console.WriteLine("\n=== Lista produktów ===");
-            foreach (var p in products)
+            foreach (var p in _context.Products.ToList())
             {
-                Console.WriteLine($"{p.Id}. {p.Name} - {p.Price:C} (Dostępne: {p.Quantity})");
+                Console.WriteLine($"ID: {p.Id} | {p.Name} - {p.Price:C} (Dostępne: {p.Quantity})");
             }
         }
 
         public void AddToCart(int id, int qty, Cart cart)
         {
-            var product = products.FirstOrDefault(p => p.Id == id);
+            var product = _context.Products.FirstOrDefault(p => p.Id == id);
             if (product == null)
             {
                 Console.WriteLine("Nie znaleziono produktu.");
@@ -197,12 +218,32 @@ namespace SklepGitarowy
 
             foreach (var item in cart.GetItems())
             {
-                var product = products.First(p => p.Id == item.Product.Id);
-                product.Quantity -= item.Quantity;
+                var product = _context.Products.FirstOrDefault(p => p.Id == item.Product.Id);
+                if (product != null)
+                {
+                    product.Quantity -= item.Quantity;
+                }
             }
 
+            _context.SaveChanges();
+
+            var order = new Order
+            {
+                TotalAmount = cart.GetTotalPrice(),
+                Items = cart.GetItems().Select(item => new OrderItem
+                {
+                    ProductName = item.Product.Name,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.Product.Price
+                }).ToList()
+            };
+
+            _context.Orders.Add(order);
+            _context.SaveChanges();
+
             Console.WriteLine("Dziękujemy za zakupy!");
+            Console.WriteLine("Zamówienie zapisane.");
             cart.Clear();
         }
     }
-}
+} 
