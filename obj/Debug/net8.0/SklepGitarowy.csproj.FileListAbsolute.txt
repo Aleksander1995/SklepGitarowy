@@ -1,0 +1,14 @@
+C:\Users\aleka\SklepGitarowy\bin\Debug\net8.0\SklepGitarowy.exe
+C:\Users\aleka\SklepGitarowy\bin\Debug\net8.0\SklepGitarowy.deps.json
+C:\Users\aleka\SklepGitarowy\bin\Debug\net8.0\SklepGitarowy.runtimeconfig.json
+C:\Users\aleka\SklepGitarowy\bin\Debug\net8.0\SklepGitarowy.dll
+C:\Users\aleka\SklepGitarowy\bin\Debug\net8.0\SklepGitarowy.pdb
+C:\Users\aleka\SklepGitarowy\obj\Debug\net8.0\SklepGitarowy.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\aleka\SklepGitarowy\obj\Debug\net8.0\SklepGitarowy.AssemblyInfoInputs.cache
+C:\Users\aleka\SklepGitarowy\obj\Debug\net8.0\SklepGitarowy.AssemblyInfo.cs
+C:\Users\aleka\SklepGitarowy\obj\Debug\net8.0\SklepGitarowy.csproj.CoreCompileInputs.cache
+C:\Users\aleka\SklepGitarowy\obj\Debug\net8.0\SklepGitarowy.dll
+C:\Users\aleka\SklepGitarowy\obj\Debug\net8.0\refint\SklepGitarowy.dll
+C:\Users\aleka\SklepGitarowy\obj\Debug\net8.0\SklepGitarowy.pdb
+C:\Users\aleka\SklepGitarowy\obj\Debug\net8.0\SklepGitarowy.genruntimeconfig.cache
+C:\Users\aleka\SklepGitarowy\obj\Debug\net8.0\ref\SklepGitarowy.dll
